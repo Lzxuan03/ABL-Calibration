@@ -1,6 +1,6 @@
-# ABL3: Source-Anchored Causal Online EEG Calibration
+# ABL-Cal: Source-Anchored Causal Online EEG Calibration
 
-This repository contains the key implementation of ABL3 and its integration with a CMCRD-style EEG--eye emotion recognizer.
+This repository contains the key implementation of ABL-Cal and its integration with a CMCRD-style EEG--eye emotion recognizer.
 
 To keep the public release compact, we provide one representative setting only:
 
@@ -13,9 +13,9 @@ To keep the public release compact, we provide one representative setting only:
 
 This is a **key-code release**. Dataset files, checkpoints, generated predictions, internal audit files, discontinued variants, and multi-dataset experiment-management code are not included.
 
-## ABL3
+## ABL-Cal
 
-ABL3 performs causal EEG calibration before a frozen recognizer. It uses a source-training statistical prior and updates the target state only after the current prediction has been produced.
+ABL-Cal performs causal EEG calibration before a frozen recognizer. It uses a source-training statistical prior and updates the target state only after the current prediction has been produced.
 
 ```text
 source prior + past target state
@@ -35,7 +35,7 @@ source prior + past target state
 
 The current target sample does not enter the persistent state before its own prediction.
 
-ABL3 uses:
+ABL-Cal uses:
 
 - source-training statistics only for initialization;
 - causal online normalization;
@@ -44,7 +44,7 @@ ABL3 uses:
 - a shared retention factor for the main calibration state;
 - strict Predict-then-Update inference.
 
-ABL3 does **not** use target labels, pseudo-labels, gradients, optimizer updates, or future target samples during target inference.
+ABL-Cal does **not** use target labels, pseudo-labels, gradients, optimizer updates, or future target samples during target inference.
 
 ## Key files
 
@@ -53,20 +53,20 @@ The main files in this compact release are:
 ```text
 README.md
 requirements.txt
-configs/frozen_abl3_multiseed.json
+configs/frozen_ABL-Cal_multiseed.json
 
 source/DGCNN.py
 source/load_data.py
 source/data/label_provider.py
 
-source/cmcrd_abl3_plugin_mainprotocol_seed2023_v2/
+source/cmcrd_ABL-Cal_plugin_mainprotocol_seed2023_v2/
 └── scripts/mainprotocol_pipeline_v1.py
 
 source/cmcrd_strict_same_protocol_seed2023_v1/
 └── losses/canonical_unis_crd_v1.py
 
-source/replacement_a8_abl3_shared_retention_seed2023_v1/
-└── adapters/abl3_transform_v1.py
+source/replacement_a8_ABL-Cal_shared_retention_seed2023_v1/
+└── adapters/ABL-Cal_transform_v1.py
 
 source/bandwise_drift_final_validation_v1/
 └── calibration/
@@ -91,26 +91,26 @@ source/strict_cross_dgcnn_sourceval_seed2022_v1/
 
 ### Role of the main files
 
-- `abl3_transform_v1.py`: final ABL3 transform and Predict-then-Update implementation.
+- `ABL-Cal_transform_v1.py`: final ABL-Cal transform and Predict-then-Update implementation.
 - `bandwise_drift_control_v1.py`: frequency-resolved drift estimation and retention candidates.
 - `cumulative_welford_v1.py`: retention-weighted online mean/variance state.
 - `online_statistics_v1.py`: causal normalization utilities.
 - `DGCNN.py`: DGCNN recognizer used by the representative experiment.
 - `canonical_unis_crd_v1.py`: CMCRD distillation loss used for EEG student training.
-- `mainprotocol_pipeline_v1.py`: representative Cross-Subject integration of the CMCRD recognizer and ABL3.
+- `mainprotocol_pipeline_v1.py`: representative Cross-Subject integration of the CMCRD recognizer and ABL-Cal.
 - `protocol_data_v1.py`: source-train/source-validation/target split logic.
 - `full_coverage_sampler_v1.py`: deterministic source-training sampler.
 - `seedv_data_v1.py`, `load_data.py`, and `label_provider.py`: SEED-V feature and label loading.
 
-## Frozen ABL3 configuration
+## Frozen ABL-Cal configuration
 
 The public configuration is stored in:
 
 ```text
-configs/frozen_abl3_multiseed.json
+configs/frozen_ABL-Cal_multiseed.json
 ```
 
-The main ABL3 parameters are:
+The main ABL-Cal parameters are:
 
 ```text
 warmup = 64
@@ -139,17 +139,17 @@ For each of the 16 target subjects:
 
 ## Paired comparison
 
-The baseline and ABL3 branches must use the same frozen recognizer checkpoint and the same target order.
+The baseline and ABL-Cal branches must use the same frozen recognizer checkpoint and the same target order.
 
 ```text
 Baseline:
 raw EEG + Eye -> frozen recognizer -> prediction
 
-ABL3:
-raw EEG -> ABL3 + same Eye -> same frozen recognizer -> prediction
+ABL-Cal:
+raw EEG -> ABL-Cal + same Eye -> same frozen recognizer -> prediction
 ```
 
-Only the EEG input is changed by ABL3. The eye-movement input path remains unchanged.
+Only the EEG input is changed by ABL-Cal. The eye-movement input path remains unchanged.
 
 ## SEED-V data
 
